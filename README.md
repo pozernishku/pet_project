@@ -1,5 +1,16 @@
 # pet_project
 
+## Install dependencies
+```sh
+pip install poetry
+```
+Change working folder and install dependencies
+```sh
+cd pet_project
+poetry install
+```
+Make sure virtual environment activated. Details
+https://python-poetry.org/docs/basic-usage/#using-your-virtual-environment
 ## Run
 
 Change working folder
