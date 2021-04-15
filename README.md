@@ -20,6 +20,7 @@ drone_coverage=False
 
 
 Tests.
+
 I can clearly explain why tests with crawlers is not a common thing.
 
 The data and structures of the sites are constantly changing and correcting/supporting spiders under the site change is 90% of the work of the developer.
