@@ -1,6 +1,7 @@
 import json
 import jmespath
 from datetime import date
+from distutils.util import strtobool
 
 import scrapy
 from scrapy import Request
@@ -19,57 +20,41 @@ class HellogetsafeSpider(scrapy.Spider):
     allowed_domains = ['hellogetsafe.com',
                        'www.hellogetsafe.com',
                        'insurance-service.api.getsafe.eu']
-
-    DEFAULT_ZIP_CODE = '01067'
-    DEFAULT_FAMILY_COVERAGE = False
-    DEFAULT_DRONE_COVERAGE = False
     PAYLOAD = {}
 
     def __init__(
             self,
-            zip_code=DEFAULT_ZIP_CODE,
-            family_coverage=DEFAULT_FAMILY_COVERAGE,
-            drone_coverage=DEFAULT_DRONE_COVERAGE,
+            zip_code='01067',
+            family_coverage=False,
+            drone_coverage=False,
             *a,
             **kw
     ):
         super().__init__(*a, **kw)
-        true_values = ('1', 1, True, 'true', 'True')
-
         self.zip_code = zip_code
+        self.family_coverage = bool(strtobool(str(family_coverage)))
+        self.drone_coverage = bool(strtobool(str(drone_coverage)))
 
-        self.family_coverage = family_coverage
-        self.family_coverage = self.family_coverage in true_values
+        product_configurations = [
+            self._get_product_config("liability_premium_basic_neodigital_de")
+        ]
+        if self.drone_coverage:
+            product_configurations.append(
+                self._get_product_config("liability_premium_drones_neodigital_de")
+            )
+        self.PAYLOAD = {"product_configurations": product_configurations}
 
-        self.drone_coverage = drone_coverage
-        self.drone_coverage = self.drone_coverage in true_values
-
-        self.PAYLOAD = {
-            "product_configurations": [
-                {
-                    "product_key": "liability_premium_basic_neodigital_de",
-                    "configuration_data": {
-                        "deductible_amount": 0,
-                        "family_coverage": self.family_coverage,
-                        "zip_code": self.zip_code,
-                        "number_of_claims_in_last_5y": 0
-                    },
-                    "effective_on": str(date.today())
-                },
-                {
-                    "product_key": "liability_premium_drones_neodigital_de",
-                    "configuration_data": {
-                        "deductible_amount": 0,
-                        "family_coverage": self.family_coverage,
-                        "zip_code": self.zip_code,
-                        "number_of_claims_in_last_5y": 0
-                    },
-                    "effective_on": str(date.today())
-                }
-            ]
+    def _get_product_config(self, key):
+        return {
+            "product_key": key,
+            "configuration_data": {
+                "deductible_amount": 0,
+                "family_coverage": self.family_coverage,
+                "zip_code": self.zip_code,
+                "number_of_claims_in_last_5y": 0
+            },
+            "effective_on": str(date.today())
         }
-        if not self.drone_coverage:
-            del self.PAYLOAD.get('product_configurations')[1]
 
     def start_requests(self):
         yield Request(
