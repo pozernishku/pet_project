@@ -5,7 +5,7 @@ from datetime import date
 import scrapy
 from scrapy import Request
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst
+from itemloaders.processors import TakeFirst
 
 from prices_scrape.items import PricesScrapeItem
 
@@ -25,16 +25,23 @@ class HellogetsafeSpider(scrapy.Spider):
     DEFAULT_DRONE_COVERAGE = False
     PAYLOAD = {}
 
-    def __init__(self, *a, **kw):
-        super(HellogetsafeSpider, self).__init__(*a, **kw)
+    def __init__(
+            self,
+            zip_code=DEFAULT_ZIP_CODE,
+            family_coverage=DEFAULT_FAMILY_COVERAGE,
+            drone_coverage=DEFAULT_DRONE_COVERAGE,
+            *a,
+            **kw
+    ):
+        super().__init__(*a, **kw)
         true_values = ('1', 1, True, 'true', 'True')
 
-        self.zip_code = kw.get('zip_code', self.DEFAULT_ZIP_CODE)
+        self.zip_code = zip_code
 
-        self.family_coverage = kw.get('family_coverage', self.DEFAULT_FAMILY_COVERAGE)
+        self.family_coverage = family_coverage
         self.family_coverage = self.family_coverage in true_values
 
-        self.drone_coverage = kw.get('drone_coverage', self.DEFAULT_DRONE_COVERAGE)
+        self.drone_coverage = drone_coverage
         self.drone_coverage = self.drone_coverage in true_values
 
         self.PAYLOAD = {
@@ -85,6 +92,7 @@ class HellogetsafeSpider(scrapy.Spider):
 
     @staticmethod
     def _parse_price(data):
-        j = 'product_configurations[].price.gross_premium'
-        prices = jmespath.search(j, data)
-        return sum(map(float, filter(None, prices))) if prices else None
+        expr = 'product_configurations[].price.gross_premium'
+        prices = jmespath.search(expr, data)
+        if prices:
+            return sum((float(price) for price in prices if price))

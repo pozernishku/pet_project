@@ -1,14 +1,14 @@
 # pet_project
 
-Run:
+Run.
+
+Change directory to prices_scrape and run:
 
 scrapy crawl hellogetsafe -a family_coverage=True -a drone_coverage=True -a zip_code=12249
 
+It is possible to extract to a file by adding: -O output.jl to see extracted data
 
-or just
-
-scrapy crawl hellogetsafe
-
+scrapy crawl hellogetsafe -O output.jl
 
 default values:
 
@@ -17,7 +17,6 @@ zip_code=01067
 family_coverage=False 
 
 drone_coverage=False
-
 
 Tests.
 
