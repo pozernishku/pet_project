@@ -6,7 +6,7 @@ authors = ["Anton Shyshko <c-ashyshko@contentanalyticsinc.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pendulum = "^1.4"
+pendulum = "^2.0.0"
 Scrapy = "^2.5.0"
 requests = "^2.25.1"
 
